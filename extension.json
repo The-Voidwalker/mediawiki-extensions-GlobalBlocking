@@ -107,7 +107,7 @@
 		"GlobalBlockWhitelistLogFormatter": "includes/GlobalBlockWhitelistLogFormatter.php"
 	},
 	"Hooks": {
-		"getUserPermissionsErrorsExpensive": "GlobalBlockingHooks::onGetUserPermissionsErrorsExpensive",
+		"GetUserBlock": "GlobalBlockingHooks::onGetUserBlock",
 		"UserIsBlockedGlobally": "GlobalBlockingHooks::onUserIsBlockedGlobally",
 		"SpecialPasswordResetOnSubmit": "GlobalBlockingHooks::onSpecialPasswordResetOnSubmit",
 		"OtherBlockLogLink": "GlobalBlockingHooks::onOtherBlockLogLink",
