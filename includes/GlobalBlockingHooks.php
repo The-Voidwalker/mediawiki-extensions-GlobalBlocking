@@ -83,6 +83,11 @@ class GlobalBlockingHooks {
 		global $wgApplyGlobalBlocks;
 
 		if ( $wgApplyGlobalBlocks ) {
+			if ( !$block ) {
+				$block = GlobalBlocking::getUserBlock( $user, $ip );
+				return true;
+			}
+
 			$blocks = $block instanceof CompositeBlock ? $block->getOriginalBlocks() : [$block];
 			$gBlock = GlobalBlocking::getUserBlock( $user, $ip );
 			if ( $gBlock ) {
