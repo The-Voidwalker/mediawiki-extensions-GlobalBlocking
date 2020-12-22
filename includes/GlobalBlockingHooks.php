@@ -6,6 +6,8 @@
  * @license GPL-2.0-or-later
  */
 
+use MediaWiki\Block\AbstractBlock;
+use MediaWiki\Block\CompositeBlock;
 use MediaWiki\Block\DatabaseBlock;
 use Wikimedia\IPUtils;
 
@@ -71,32 +73,24 @@ class GlobalBlockingHooks {
 	}
 
 	/**
-	 * @param Title &$title
-	 * @param User &$user
-	 * @param string $action
-	 * @param mixed &$result
+	 * @param User $user
+	 * @param $ip
+	 * @param AbstractBlock &$block
 	 *
 	 * @return bool
 	 */
-	public static function onGetUserPermissionsErrorsExpensive(
-		Title &$title, User &$user, $action, &$result
-	) {
-		global $wgApplyGlobalBlocks, $wgRequest;
-		if ( $action == 'read' || !$wgApplyGlobalBlocks ) {
-			return true;
+	public static function onGetUserBlock( User $user, $ip, AbstractBlock &$block ) {
+		global $wgApplyGlobalBlocks;
+
+		if ( $wgApplyGlobalBlocks ) {
+			$blocks = $block instanceof CompositeBlock ? $block->getOriginalBlocks() : [$block];
+			$gBlock = GlobalBlocking::getUserBlock( $user, $ip );
+			if ( $gBlock ) {
+				$blocks += [$gblock];
+				$block = new CompositeBlock( [ 'originalBlocks' => $blocks ] );
+			}
 		}
-		if ( $user->isAllowed( 'ipblock-exempt' ) ||
-			$user->isAllowed( 'globalblock-exempt' )
-		) {
-			// User is exempt from IP blocks.
-			return true;
-		}
-		$ip = $wgRequest->getIP();
-		$blockError = GlobalBlocking::getUserBlockErrors( $user, $ip );
-		if ( !empty( $blockError ) ) {
-			$result = [ $blockError ];
-			return false;
-		}
+
 		return true;
 	}
 
